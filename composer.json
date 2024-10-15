@@ -1,0 +1,26 @@
+{
+    "name": "dand/password-validator",
+    "description": "A Laravel package for validating user passwords.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "dandi rahmawan",
+            "email": "dandirahmawan95@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.3 || ^8.0",
+        "illuminate/support": "^8.0 || ^9.0 || ^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dand\\PasswordValidator\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require-dev": {
+        "phpunit/phpunit": "^11.4"
+    }
+}
