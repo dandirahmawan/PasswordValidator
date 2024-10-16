@@ -4,7 +4,7 @@ namespace Dand\PasswordValidator; // Adjust to your namespace
 
 class PasswordValidator
 {
-    public function validate($password)
+    public function validate($password, $hashpassword, $additionalInfo)
     {
         $rules = [
             'length' => strlen($password) >= 8,
@@ -14,31 +14,55 @@ class PasswordValidator
             'capital' => preg_match('/[A-Z]/', $password),
         ];
 
-        return count(array_filter($rules)) === count($rules); // All rules must be satisfied
+        if (count(array_filter($rules)) !== count($rules)) {
+            return false;
+        };
+
+        for ($i = 0;$i<count($hashpassword);$i++) {
+            if (password_verify($password, $hashpassword[$i])) {
+                return false;
+            } 
+        }
+        
+        for ($i = 0; $i < count($additionalInfo); $i++) {
+            $info = $additionalInfo[$i];
+            if (stripos($info["value"], $password) !== false) {
+                return false;
+            }
+        }
+        
+        return true; // All rules must be satisfied
     }
 
-    public function getErrorMessages($password)
+    public function getErrorMessages($password, $hashpassword, $additionalInfo)
     {
-        $messages = [];
+        $messages = "";
 
         if (strlen($password) < 8) {
-            $messages[] = 'Password must be at least 8 characters long.';
+            $messages = 'Katasandi setidaknya memiliki panjang 8 karakter dengan 1 simbol, huruf besar dan angka';
         }
 
         if (!preg_match('/[0-9]/', $password)) {
-            $messages[] = 'Password must contain at least one number.';
+            $messages = 'Katasandi setidaknya memiliki panjang 8 karakter dengan 1 simbol, huruf besar dan angka';
+        } else if (!preg_match('/[a-zA-Z]/', $password)) {
+            $messages = 'Katasandi setidaknya memiliki panjang 8 karakter dengan 1 simbol, huruf besar dan angka';
+        } else if (!preg_match('/[\W_]/', $password)) {
+            $messages = 'Katasandi setidaknya memiliki panjang 8 karakter dengan 1 simbol, huruf besar dan angka';
+        }else if (!preg_match('/[A-Z]/', $password)) {
+            $messages = 'Katasandi setidaknya memiliki panjang 8 karakter dengan 1 simbol, huruf besar dan angka';
         }
 
-        if (!preg_match('/[a-zA-Z]/', $password)) {
-            $messages[] = 'Password must contain at least one letter.';
+        for ($i = 0;$i<count($hashpassword);$i++) {
+            if (password_verify($password, $hashpassword[$i])) {
+                $messages = 'Kata sandi tidak boleh sama dengan '.count($hashpassword).' kata sandi terakhir';
+            } 
         }
-
-        if (!preg_match('/[\W_]/', $password)) {
-            $messages[] = 'Password must contain at least one symbol.';
-        }
-
-        if (!preg_match('/[A-Z]/', $password)) {
-            $messages[] = 'Password must contain at least one capital letter.';
+        
+        for ($i = 0; $i < count($additionalInfo); $i++) {
+            $info = $additionalInfo[$i];
+            if (stripos($info["value"], $password) !== false) {
+                $messages = 'Kata sandi tidak boleh memiliki kesamaan dengan ' . $info["name"];
+            }
         }
 
         return $messages;
